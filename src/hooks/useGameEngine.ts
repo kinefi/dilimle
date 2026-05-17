@@ -1,37 +1,36 @@
-import React, { useEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GameLoop } from '../game/engine/GameLoop';
 import { Renderer } from '../game/engine/Renderer';
 import { GAME_CONFIG } from '../constants/config';
 import { Enemy, EnemyType } from '../game/entities/Enemy';
 import { Spark } from '../game/entities/Spark';
 import { Shield, ShieldType } from '../game/entities/Shield';
-import { 
-  performCaptureCalculation,
-  calculateTotalArea
-} from '../utils/gameHelpers';
-import { Point, isPointInPolygon } from '../utils/geometryUtils';
-import { 
-  checkEnemiesTrailCollision, 
-  checkPlayerSelfCollision, 
-  checkFireTrailCollision 
+import { performCaptureCalculation, calculateTotalArea } from '../utils/gameHelpers';
+import type { Point } from '../utils/geometryUtils';
+import { isPointInPolygon } from '../utils/geometryUtils';
+import {
+  checkEnemiesTrailCollision,
+  checkPlayerSelfCollision,
+  checkFireTrailCollision,
 } from '../utils/collisionUtils';
-import { 
-  getLevelConfig, 
+import {
+  getLevelConfig,
   calculateScoreMultiplier,
   calculateCapturedPercentage,
   createLevelEnemies,
   calculateBossHealth,
-  getInitialCapturedPolygons
+  getInitialCapturedPolygons,
 } from '../utils/progressionUtils';
-import { playSound, startBGM, stopBGM, setBGMVolume } from '../utils/audioUtils';
+import { playSound, startBGM, stopBGM, setBGMVolume, type AudioAssets } from '../utils/audioUtils';
 import { useInputHandler } from './useInputHandler';
 import { usePowerUps } from './usePowerUps';
 import polygonClipping from 'polygon-clipping';
 
 export const useGameEngine = (
-  canvasRef: React.RefObject<HTMLCanvasElement | null>, 
-  audioAssets: any,
-  isStarted: boolean
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  audioAssets: AudioAssets,
+  isStarted: boolean,
 ) => {
   const [level, setLevel] = useState(1);
   const [score, setScore] = useState(0);
@@ -43,22 +42,28 @@ export const useGameEngine = (
   const initialAreaRef = useRef(0);
   const capturedPercentRef = useRef(0);
 
-  const { 
-    shieldTime, shieldTimeRef, 
-    fireShieldTime, fireShieldTimeRef, 
-    slowMotionTime, slowMotionTimeRef, 
-    updateTimers, resetPowerUps,
-    setShieldTime, setFireShieldTime, setSlowMotionTime 
+  const {
+    shieldTime,
+    shieldTimeRef,
+    fireShieldTime,
+    fireShieldTimeRef,
+    slowMotionTime,
+    slowMotionTimeRef,
+    updateTimers,
+    resetPowerUps,
+    setShieldTime,
+    setFireShieldTime,
+    setSlowMotionTime,
   } = usePowerUps();
 
   const [bgmVolume, setBgmVolume] = useState(0.5);
 
   const playerRef = useRef({ x: 0, y: 0 });
-  const { keys, keyStack, resetInput } = useInputHandler(isStarted, isGameOver || isWin);
+  const { keyStack, resetInput } = useInputHandler(isStarted, isGameOver || isWin);
 
   const enemiesRef = useRef([
     new Enemy(200, 200, EnemyType.BOUNCER),
-    new Enemy(GAME_CONFIG.GRID_WIDTH - 200, GAME_CONFIG.GRID_HEIGHT - 200, EnemyType.CHASER)
+    new Enemy(GAME_CONFIG.GRID_WIDTH - 200, GAME_CONFIG.GRID_HEIGHT - 200, EnemyType.CHASER),
   ]);
   const sparkRef = useRef(new Spark());
   const shieldRef = useRef(new Shield());
@@ -66,7 +71,7 @@ export const useGameEngine = (
   const sliceState = useRef({
     isSlicing: false,
     trail: [] as Point[],
-    capturedPolygons: getInitialCapturedPolygons()
+    capturedPolygons: getInitialCapturedPolygons(),
   });
 
   // Setup timers and assets
@@ -76,15 +81,25 @@ export const useGameEngine = (
     // Spawn a shield randomly every 15-30 seconds
     const shieldTimer = setInterval(() => {
       if (!sliceState.current.isSlicing && !isGameOver && !isWin) {
-        const fullField: [number, number][][] = [[[0, 0], [GAME_CONFIG.GRID_WIDTH, 0], [GAME_CONFIG.GRID_WIDTH, GAME_CONFIG.GRID_HEIGHT], [0, GAME_CONFIG.GRID_HEIGHT]]];
-        const currentCaptured = sliceState.current.capturedPolygons.map(p => [p.map(pt => [pt.x, pt.y] as [number, number])]);
-        const currentVoid = polygonClipping.difference(fullField as any, currentCaptured as any);
-        
-        const voidPolys: Point[][] = currentVoid.map(mp => mp[0].map(([x, y]) => ({ x, y })));
+        const fullField: [number, number][][] = [
+          [
+            [0, 0],
+            [GAME_CONFIG.GRID_WIDTH, 0],
+            [GAME_CONFIG.GRID_WIDTH, GAME_CONFIG.GRID_HEIGHT],
+            [0, GAME_CONFIG.GRID_HEIGHT],
+          ],
+        ];
+        const currentCaptured = sliceState.current.capturedPolygons.map((p) => [
+          p.map((pt) => [pt.x, pt.y] as [number, number]),
+        ]);
+        const currentVoid = polygonClipping.difference(fullField, currentCaptured);
+
+        const voidPolys: Point[][] = currentVoid.map((mp) => mp[0].map(([x, y]) => ({ x, y })));
 
         const rand = Math.random();
-        const type = rand > 0.66 ? ShieldType.SLOW_MOTION : rand > 0.33 ? ShieldType.FIRE : ShieldType.NORMAL;
-        
+        const type =
+          rand > 0.66 ? ShieldType.SLOW_MOTION : rand > 0.33 ? ShieldType.FIRE : ShieldType.NORMAL;
+
         shieldRef.current.spawn(voidPolys, type);
       }
     }, 15000);
@@ -102,12 +117,13 @@ export const useGameEngine = (
       setLives(GAME_CONFIG.INITIAL_LIVES);
       setScore(0);
     }
-    
+
     setLevel(nextLevel);
 
     initialAreaRef.current = capturedPercentRef.current = 0;
     setCapturedPercent(0);
-    setIsGameOver(false); setIsWin(false);
+    setIsGameOver(false);
+    setIsWin(false);
     resetPowerUps();
     playerRef.current = { x: 0, y: 0 };
     resetInput();
@@ -152,16 +168,15 @@ export const useGameEngine = (
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const engineRef = { currentLevel: level };
     // Ensure the canvas container is focused for input
     canvasRef.current?.parentElement?.focus();
-    
+
     const update = (): void => {
       const player = playerRef.current;
       const state = sliceState.current;
 
       const handleDeath = () => {
-        setLives(prev => {
+        setLives((prev) => {
           if (prev <= 1) {
             setIsGameOver(true);
             playSound(audioAssets.capture, 1, 0);
@@ -182,7 +197,10 @@ export const useGameEngine = (
         if (currentMoveKey === 'ArrowUp') {
           player.y = Math.max(radius, player.y - GAME_CONFIG.PLAYER_SPEED);
         } else if (currentMoveKey === 'ArrowDown') {
-          player.y = Math.min(GAME_CONFIG.GRID_HEIGHT - radius, player.y + GAME_CONFIG.PLAYER_SPEED);
+          player.y = Math.min(
+            GAME_CONFIG.GRID_HEIGHT - radius,
+            player.y + GAME_CONFIG.PLAYER_SPEED,
+          );
         } else if (currentMoveKey === 'ArrowLeft') {
           player.x = Math.max(radius, player.x - GAME_CONFIG.PLAYER_SPEED);
         } else if (currentMoveKey === 'ArrowRight') {
@@ -198,10 +216,10 @@ export const useGameEngine = (
         }
 
         const result = performCaptureCalculation(
-          state.trail, 
-          player, 
-          state.capturedPolygons, 
-          enemiesRef.current
+          state.trail,
+          player,
+          state.capturedPolygons,
+          enemiesRef.current,
         );
 
         if (!result) return;
@@ -211,24 +229,24 @@ export const useGameEngine = (
         }
 
         state.capturedPolygons = result.finalCaptured;
-          
-          const currentArea = result.capturedPercent;
-          const newPercent = calculateCapturedPercentage(currentArea, initialAreaRef.current);
-          
-          const delta = newPercent - capturedPercentRef.current;
-          if (delta > 0) {
-            const multiplier = calculateScoreMultiplier(delta);
-            setScore(prev => prev + (delta * 100 * multiplier));
-          }
 
-          capturedPercentRef.current = newPercent;
-          setCapturedPercent(newPercent);
-          
-          const { targetPercent } = getLevelConfig(levelRef.current);
-          if (newPercent >= targetPercent) {
-            setIsWin(true);
-          }
-          playSound(audioAssets.capture, 3, 5);
+        const currentArea = result.capturedPercent;
+        const newPercent = calculateCapturedPercentage(currentArea, initialAreaRef.current);
+
+        const delta = newPercent - capturedPercentRef.current;
+        if (delta > 0) {
+          const multiplier = calculateScoreMultiplier(delta);
+          setScore((prev) => prev + delta * 100 * multiplier);
+        }
+
+        capturedPercentRef.current = newPercent;
+        setCapturedPercent(newPercent);
+
+        const { targetPercent } = getLevelConfig(levelRef.current);
+        if (newPercent >= targetPercent) {
+          setIsWin(true);
+        }
+        playSound(audioAssets.capture, 3, 5);
 
         state.isSlicing = false;
         state.trail = [];
@@ -237,7 +255,10 @@ export const useGameEngine = (
 
       const handleShields = () => {
         if (shieldRef.current.isActive) {
-          const dist = Math.sqrt(Math.pow(player.x - shieldRef.current.x, 2) + Math.pow(player.y - shieldRef.current.y, 2));
+          const dist = Math.sqrt(
+            Math.pow(player.x - shieldRef.current.x, 2) +
+              Math.pow(player.y - shieldRef.current.y, 2),
+          );
           if (dist < 20) {
             if (shieldRef.current.type === ShieldType.FIRE) {
               fireShieldTimeRef.current = GAME_CONFIG.SHIELD_DURATION;
@@ -257,10 +278,10 @@ export const useGameEngine = (
       handleMovement();
       handleShields();
 
-      const inSafeZone = state.capturedPolygons.some(poly => isPointInPolygon(player, poly));
+      const inSafeZone = state.capturedPolygons.some((poly) => isPointInPolygon(player, poly));
       if (!inSafeZone && !state.isSlicing) {
         state.isSlicing = true;
-        state.trail = [ { x: player.x, y: player.y } ];
+        state.trail = [{ x: player.x, y: player.y }];
         sparkRef.current.activate(state.trail[0]);
       } else if (state.isSlicing) {
         const lastPoint = state.trail[state.trail.length - 1];
@@ -271,9 +292,11 @@ export const useGameEngine = (
         const shieldActive = shieldTimeRef.current > 0;
         const fireShieldActive = fireShieldTimeRef.current > 0;
 
-        if (checkEnemiesTrailCollision(enemiesRef.current, state.trail, shieldActive)) return handleDeath();
+        if (checkEnemiesTrailCollision(enemiesRef.current, state.trail, shieldActive))
+          return handleDeath();
         if (checkPlayerSelfCollision(player, state.trail, shieldActive)) return handleDeath();
-        if (checkFireTrailCollision(player, enemiesRef.current, fireShieldActive, shieldActive)) return handleDeath();
+        if (checkFireTrailCollision(player, enemiesRef.current, fireShieldActive, shieldActive))
+          return handleDeath();
 
         if (inSafeZone) handleCapture();
       }
@@ -288,11 +311,11 @@ export const useGameEngine = (
 
       updateTimers();
 
-      enemiesRef.current.forEach(enemy => {
+      enemiesRef.current.forEach((enemy) => {
         enemy.update(
-          (p) => state.capturedPolygons.some(poly => isPointInPolygon(p, poly)),
+          (p) => state.capturedPolygons.some((poly) => isPointInPolygon(p, poly)),
           playerRef.current,
-          slowMotionTimeRef.current > 0 ? 0.3 : 1
+          slowMotionTimeRef.current > 0 ? 0.3 : 1,
         );
       });
     };
@@ -309,19 +332,49 @@ export const useGameEngine = (
         slowMotionTimeRef.current,
         enemiesRef.current,
         sparkRef.current,
-        shieldRef.current
+        shieldRef.current,
       );
     };
 
     const engine = new GameLoop(update, draw);
     engine.start();
-    return () => { 
-      engine.stop(); 
+    return () => {
+      engine.stop();
     };
-  }, [audioAssets, isGameOver, isWin, isStarted]);
+  }, [
+    audioAssets,
+    isGameOver,
+    isWin,
+    isStarted,
+    level,
+    canvasRef,
+    fireShieldTimeRef,
+    keyStack,
+    setFireShieldTime,
+    setShieldTime,
+    setSlowMotionTime,
+    shieldTimeRef,
+    slowMotionTimeRef,
+    updateTimers,
+    resetInput,
+  ]);
 
   const { targetPercent } = getLevelConfig(level);
   const bossHealth = calculateBossHealth(targetPercent, capturedPercent);
 
-  return { level, score, lives, capturedPercent, bossHealth, isGameOver, isWin, shieldTime, fireShieldTime, slowMotionTime, resetGame, bgmVolume, setBgmVolume };
+  return {
+    level,
+    score,
+    lives,
+    capturedPercent,
+    bossHealth,
+    isGameOver,
+    isWin,
+    shieldTime,
+    fireShieldTime,
+    slowMotionTime,
+    resetGame,
+    bgmVolume,
+    setBgmVolume,
+  };
 };

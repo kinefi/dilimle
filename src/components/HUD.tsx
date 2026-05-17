@@ -1,7 +1,6 @@
 import React from 'react';
 
 interface HUDProps {
-  level: number;
   capturedPercent: number;
   lives: number;
   shieldTime: number;
@@ -9,7 +8,7 @@ interface HUDProps {
   score: number;
 }
 
-const HUD: React.FC<HUDProps> = ({ level, capturedPercent, lives, shieldTime, slowMotionTime, score }) => {
+const HUD: React.FC<HUDProps> = ({ capturedPercent, lives, shieldTime, slowMotionTime, score }) => {
   return (
     <div className="absolute top-4 left-4 right-4 flex flex-col gap-2 pointer-events-none text-white font-mono text-xl drop-shadow-md">
       <div className="flex justify-between items-center">
@@ -22,7 +21,7 @@ const HUD: React.FC<HUDProps> = ({ level, capturedPercent, lives, shieldTime, sl
           </div>
         </div>
         <div className="bg-slate-800/50 px-4 py-2 rounded-lg border border-slate-600">
-          LIVES: <span className="text-red-400">{"❤️".repeat(lives)}</span>
+          LIVES: <span className="text-red-400">{'❤️'.repeat(lives)}</span>
         </div>
       </div>
       {shieldTime > 0 && (

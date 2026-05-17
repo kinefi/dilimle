@@ -1,6 +1,14 @@
 import { GAME_CONFIG } from '../constants/config';
 
-export const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+export const audioCtx = new (
+  window.AudioContext ||
+  (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+)();
+
+export interface AudioAssets {
+  capture: AudioBuffer | null;
+  bgm: AudioBuffer | null;
+}
 
 export const loadAudio = async (url: string): Promise<AudioBuffer | null> => {
   try {
@@ -14,7 +22,7 @@ export const loadAudio = async (url: string): Promise<AudioBuffer | null> => {
   }
 };
 
-export const assetsPromise = Promise.all([
+export const assetsPromise: Promise<AudioAssets> = Promise.all([
   loadAudio(GAME_CONFIG.SOUNDS.CAPTURE),
   loadAudio(GAME_CONFIG.SOUNDS.BGM),
 ]).then(([capture, bgm]) => ({ capture, bgm }));
@@ -39,7 +47,7 @@ export const startBGM = (buffer: AudioBuffer | null) => {
     bgmSource.start(0);
   };
   if (audioCtx.state === 'suspended') {
-    audioCtx.resume().then(play);
+    void audioCtx.resume().then(play);
   } else {
     play();
   }
@@ -47,12 +55,16 @@ export const startBGM = (buffer: AudioBuffer | null) => {
 
 export const stopBGM = () => {
   if (bgmSource) {
-    try { bgmSource.stop(); } catch (e) {}
+    try {
+      bgmSource.stop();
+    } catch {
+      /* ignore */
+    }
     bgmSource = null;
   }
 };
 
-export const playSound = (buffer: AudioBuffer | null, duration?: number, offset: number = 0) => {
+export const playSound = (buffer: AudioBuffer | null, duration?: number, offset = 0) => {
   if (!buffer || audioCtx.state === 'suspended') return;
   const source = audioCtx.createBufferSource();
   source.buffer = buffer;

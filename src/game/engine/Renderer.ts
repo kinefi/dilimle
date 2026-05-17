@@ -1,8 +1,8 @@
 import { GAME_CONFIG } from '../../constants/config';
-import { Point } from '../../utils/geometryUtils';
-import { Enemy } from '../entities/Enemy';
-import { Spark } from '../entities/Spark';
-import { Shield } from '../entities/Shield';
+import type { Point } from '../../utils/geometryUtils';
+import type { Enemy } from '../entities/Enemy';
+import type { Spark } from '../entities/Spark';
+import type { Shield } from '../entities/Shield';
 
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
@@ -21,7 +21,7 @@ export class Renderer {
     slowMotionTime: number,
     enemies: Enemy[],
     spark: Spark,
-    shield: Shield
+    shield: Shield,
   ) {
     const ctx = this.ctx;
     ctx.fillStyle = GAME_CONFIG.COLORS.BACKGROUND;
@@ -30,9 +30,9 @@ export class Renderer {
     ctx.save();
     // Draw Safe Zones with distinct borders
     ctx.fillStyle = GAME_CONFIG.COLORS.SAFE_ZONE;
-    capturedPolygons.forEach(poly => {
+    capturedPolygons.forEach((poly) => {
       ctx.beginPath();
-      poly.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      poly.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
       ctx.closePath();
       ctx.fill();
       ctx.strokeStyle = GAME_CONFIG.COLORS.BORDER;
@@ -46,19 +46,20 @@ export class Renderer {
       ctx.strokeStyle = GAME_CONFIG.COLORS.TRAIL;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      trail.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      trail.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
       ctx.stroke();
       ctx.restore();
     }
 
     // Draw Player with optional shield effect
-    ctx.fillStyle = (shieldTime > 0 || fireShieldTime > 0) ? GAME_CONFIG.COLORS.SHIELD : GAME_CONFIG.COLORS.PLAYER;
+    ctx.fillStyle =
+      shieldTime > 0 || fireShieldTime > 0 ? GAME_CONFIG.COLORS.SHIELD : GAME_CONFIG.COLORS.PLAYER;
     if (shieldTime > 0) {
       ctx.beginPath();
       ctx.arc(player.x, player.y, 8, 0, Math.PI * 2);
       ctx.fill();
-    } 
-    
+    }
+
     if (fireShieldTime > 0) {
       ctx.save();
       ctx.strokeStyle = '#ff5722';
@@ -73,7 +74,7 @@ export class Renderer {
       ctx.fillRect(player.x - 5, player.y - 5, 10, 10);
     }
 
-    enemies.forEach(enemy => enemy.draw(ctx, slowMotionTime > 0));
+    enemies.forEach((enemy) => enemy.draw(ctx, slowMotionTime > 0));
     spark.draw(ctx);
     shield.draw(ctx);
   }

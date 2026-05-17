@@ -1,6 +1,6 @@
 import { GAME_CONFIG } from '../constants/config';
 import { Enemy, EnemyType } from '../game/entities/Enemy';
-import { Point } from './geometryUtils';
+import type { Point } from './geometryUtils';
 
 export const getLevelConfig = (level: number) => {
   const targetPercent = Math.min(75 + level * 2, 95);
@@ -11,11 +11,11 @@ export const getLevelConfig = (level: number) => {
 export const getEnemyTypeForLevel = (level: number, index: number): EnemyType => {
   // Difficulty spike after level 10: Upgrade Bouncers to Chasers
   if (level > 10 && index % 3 === 0) return EnemyType.CHASER;
-  
+
   // Standard Gating
   if (level >= 3 && index % 3 === 2) return EnemyType.FIRE_TRAILER;
   if (level >= 2 && index % 3 === 1) return EnemyType.CHASER;
-  
+
   return EnemyType.BOUNCER;
 };
 
@@ -33,7 +33,7 @@ export const calculateCapturedPercentage = (currentArea: number, initialArea: nu
   const totalArea = GAME_CONFIG.GRID_WIDTH * GAME_CONFIG.GRID_HEIGHT;
   const playableArea = Math.max(1, totalArea - initialArea);
   if (playableArea <= 0) return 0;
-  
+
   const capturedFromVoid = Math.max(0, currentArea - initialArea);
   return Math.min(100, Math.floor((capturedFromVoid / playableArea) * 100));
 };
@@ -54,8 +54,28 @@ export const calculateBossHealth = (targetPercent: number, capturedPercent: numb
 };
 
 export const getInitialCapturedPolygons = (): Point[][] => [
-  [{ x: 0, y: 0 }, { x: GAME_CONFIG.GRID_WIDTH, y: 0 }, { x: GAME_CONFIG.GRID_WIDTH, y: 20 }, { x: 0, y: 20 }],
-  [{ x: GAME_CONFIG.GRID_WIDTH - 20, y: 0 }, { x: GAME_CONFIG.GRID_WIDTH, y: 0 }, { x: GAME_CONFIG.GRID_WIDTH, y: GAME_CONFIG.GRID_HEIGHT }, { x: GAME_CONFIG.GRID_WIDTH - 20, y: GAME_CONFIG.GRID_HEIGHT }],
-  [{ x: 0, y: GAME_CONFIG.GRID_HEIGHT - 20 }, { x: GAME_CONFIG.GRID_WIDTH, y: GAME_CONFIG.GRID_HEIGHT - 20 }, { x: GAME_CONFIG.GRID_WIDTH, y: GAME_CONFIG.GRID_HEIGHT }, { x: 0, y: GAME_CONFIG.GRID_HEIGHT }],
-  [{ x: 0, y: 0 }, { x: 20, y: 0 }, { x: 20, y: GAME_CONFIG.GRID_HEIGHT }, { x: 0, y: GAME_CONFIG.GRID_HEIGHT }]
+  [
+    { x: 0, y: 0 },
+    { x: GAME_CONFIG.GRID_WIDTH, y: 0 },
+    { x: GAME_CONFIG.GRID_WIDTH, y: 20 },
+    { x: 0, y: 20 },
+  ],
+  [
+    { x: GAME_CONFIG.GRID_WIDTH - 20, y: 0 },
+    { x: GAME_CONFIG.GRID_WIDTH, y: 0 },
+    { x: GAME_CONFIG.GRID_WIDTH, y: GAME_CONFIG.GRID_HEIGHT },
+    { x: GAME_CONFIG.GRID_WIDTH - 20, y: GAME_CONFIG.GRID_HEIGHT },
+  ],
+  [
+    { x: 0, y: GAME_CONFIG.GRID_HEIGHT - 20 },
+    { x: GAME_CONFIG.GRID_WIDTH, y: GAME_CONFIG.GRID_HEIGHT - 20 },
+    { x: GAME_CONFIG.GRID_WIDTH, y: GAME_CONFIG.GRID_HEIGHT },
+    { x: 0, y: GAME_CONFIG.GRID_HEIGHT },
+  ],
+  [
+    { x: 0, y: 0 },
+    { x: 20, y: 0 },
+    { x: 20, y: GAME_CONFIG.GRID_HEIGHT },
+    { x: 0, y: GAME_CONFIG.GRID_HEIGHT },
+  ],
 ];

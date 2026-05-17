@@ -1,5 +1,6 @@
 import { GAME_CONFIG } from '../../constants/config';
-import { Point, isPointInPolygon } from '../../utils/geometryUtils';
+import type { Point } from '../../utils/geometryUtils';
+import { isPointInPolygon } from '../../utils/geometryUtils';
 
 export enum EnemyType {
   BOUNCER,
@@ -17,11 +18,11 @@ export class Enemy {
   public fireTrail: FirePoint[] = [];
   private vx: number;
   private vy: number;
-  private radius: number = 8;
+  private radius = 8;
   private type: EnemyType;
-  private lastTrailDrop: number = 0;
+  private lastTrailDrop = 0;
 
-  constructor(x: number, y: number, type: EnemyType = EnemyType.BOUNCER, speedScale: number = 1) {
+  constructor(x: number, y: number, type: EnemyType = EnemyType.BOUNCER, speedScale = 1) {
     this.x = x;
     this.y = y;
     this.type = type;
@@ -44,12 +45,12 @@ export class Enemy {
       { x: this.x - this.radius * 0.5, y: this.y - this.radius * 0.5 },
       { x: this.x + this.radius * 0.5, y: this.y + this.radius * 0.5 },
       { x: this.x - this.radius * 0.5, y: this.y + this.radius * 0.5 },
-      { x: this.x + this.radius * 0.5, y: this.y - this.radius * 0.5 }
+      { x: this.x + this.radius * 0.5, y: this.y - this.radius * 0.5 },
     ];
-    return checkPoints.some(p => isPointInPolygon(p, polygon));
+    return checkPoints.some((p) => isPointInPolygon(p, polygon));
   }
 
-  update(isSafeCheck: (p: Point) => boolean, playerPos?: Point, slowFactor: number = 1) {
+  update(isSafeCheck: (p: Point) => boolean, playerPos?: Point, slowFactor = 1) {
     const effectiveVx = this.vx * slowFactor;
     const effectiveVy = this.vy * slowFactor;
 
@@ -61,7 +62,7 @@ export class Enemy {
         this.vx += (dx / dist) * 0.05 * slowFactor;
         this.vy += (dy / dist) * 0.05 * slowFactor;
       }
-      
+
       const speedLimit = 2.5;
       const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
       if (currentSpeed > speedLimit) {
@@ -76,7 +77,7 @@ export class Enemy {
         this.fireTrail.push({ x: this.x, y: this.y, createdAt: now });
         this.lastTrailDrop = now;
       }
-      this.fireTrail = this.fireTrail.filter(p => now - p.createdAt < 4000);
+      this.fireTrail = this.fireTrail.filter((p) => now - p.createdAt < 4000);
     }
 
     // Check collision slightly ahead of current velocity to prevent getting stuck
@@ -84,10 +85,14 @@ export class Enemy {
     const checkX = this.x + (effectiveVx > 0 ? checkBuffer : -checkBuffer);
     const checkY = this.y + (effectiveVy > 0 ? checkBuffer : -checkBuffer);
 
-    const horizontalCollision = isSafeCheck({ x: checkX, y: this.y }) || 
-                                checkX < this.radius || checkX > GAME_CONFIG.GRID_WIDTH - this.radius;
-    const verticalCollision = isSafeCheck({ x: this.x, y: checkY }) || 
-                              checkY < this.radius || checkY > GAME_CONFIG.GRID_HEIGHT - this.radius;
+    const horizontalCollision =
+      isSafeCheck({ x: checkX, y: this.y }) ||
+      checkX < this.radius ||
+      checkX > GAME_CONFIG.GRID_WIDTH - this.radius;
+    const verticalCollision =
+      isSafeCheck({ x: this.x, y: checkY }) ||
+      checkY < this.radius ||
+      checkY > GAME_CONFIG.GRID_HEIGHT - this.radius;
 
     if (horizontalCollision) {
       this.vx *= -1;
@@ -100,7 +105,7 @@ export class Enemy {
     this.y += effectiveVy;
   }
 
-  draw(ctx: CanvasRenderingContext2D, isSlow: boolean = false) {
+  draw(ctx: CanvasRenderingContext2D, isSlow = false) {
     if (this.type === EnemyType.FIRE_TRAILER) {
       ctx.save();
       this.fireTrail.forEach((p, i) => {

@@ -6,7 +6,7 @@ interface StartScreenProps {
 
 const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => (
   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-40 rounded-lg backdrop-blur-sm">
-    <button 
+    <button
       onClick={onStart}
       className="px-12 py-4 bg-emerald-500 text-white font-black text-2xl hover:bg-emerald-400 transition-all transform hover:scale-105 rounded shadow-xl tracking-widest"
     >

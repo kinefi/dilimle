@@ -14,6 +14,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "strictNullChecks": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react" // Explicitly tell TS where to find the JSX runtime
   },

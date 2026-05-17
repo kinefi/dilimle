@@ -1,5 +1,5 @@
 export class GameLoop {
-  private isRunning: boolean = false;
+  private isRunning = false;
   private rafId: number | null = null;
   private update: () => void;
   private draw: () => void;

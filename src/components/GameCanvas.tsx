@@ -12,35 +12,41 @@ const GameCanvas: React.FC = () => {
   const audioAssets = use(assetsPromise);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isStarted, setIsStarted] = useState(false);
-  const { 
-    level, 
-    score, 
-    lives, 
-    capturedPercent, 
-    bossHealth, 
-    isGameOver, 
-    isWin, 
-    shieldTime, 
-    slowMotionTime, 
+  const {
+    level,
+    score,
+    lives,
+    capturedPercent,
+    bossHealth,
+    isGameOver,
+    isWin,
+    shieldTime,
+    slowMotionTime,
     resetGame,
     bgmVolume,
-    setBgmVolume
+    setBgmVolume,
   } = useGameEngine(canvasRef, audioAssets, isStarted);
 
   const handleStart = () => {
     if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
+      void audioCtx.resume();
     }
     setIsStarted(true);
   };
 
   return (
-    <div 
-      className="relative outline-none" 
+    <div
+      className="relative outline-none"
       onMouseDown={(e) => e.currentTarget.focus()}
       tabIndex={0}
     >
-      <HUD level={level} score={score} capturedPercent={capturedPercent} lives={lives} shieldTime={shieldTime} slowMotionTime={slowMotionTime} />
+      <HUD
+        score={score}
+        capturedPercent={capturedPercent}
+        lives={lives}
+        shieldTime={shieldTime}
+        slowMotionTime={slowMotionTime}
+      />
 
       <div className="absolute bottom-4 left-4 z-50 px-4 py-2 bg-slate-800/60 backdrop-blur-md rounded-lg border border-slate-700/50 text-white font-black tracking-widest pointer-events-none shadow-lg">
         <span className="text-xs text-slate-400 block uppercase font-bold">Current</span>
@@ -62,20 +68,20 @@ const GameCanvas: React.FC = () => {
           title="Background Music Volume"
         />
       </div>
-      
+
       {isStarted && !isGameOver && !isWin && <BossHealthBar health={bossHealth} />}
 
       {isGameOver && <GameOver onRestart={resetGame} />}
-      
+
       {isWin && <WinScreen capturedPercent={capturedPercent} onNextLevel={resetGame} />}
 
       {!isStarted && !isGameOver && <StartScreen onStart={handleStart} />}
 
-      <canvas 
-        ref={canvasRef} 
-        width={GAME_CONFIG.GRID_WIDTH} 
-        height={GAME_CONFIG.GRID_HEIGHT} 
-        className="border-2 border-slate-700 shadow-2xl rounded-lg" 
+      <canvas
+        ref={canvasRef}
+        width={GAME_CONFIG.GRID_WIDTH}
+        height={GAME_CONFIG.GRID_HEIGHT}
+        className="border-2 border-slate-700 shadow-2xl rounded-lg"
       />
     </div>
   );

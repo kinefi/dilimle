@@ -22,7 +22,7 @@ export const useInputHandler = (isStarted: boolean, isPaused: boolean) => {
     const handleKeyUp = (e: KeyboardEvent) => {
       keysRef.current[e.key] = false;
       if (e.key.startsWith('Arrow')) {
-        keyStackRef.current = keyStackRef.current.filter(k => k !== e.key);
+        keyStackRef.current = keyStackRef.current.filter((k) => k !== e.key);
       }
     };
 
@@ -48,6 +48,6 @@ export const useInputHandler = (isStarted: boolean, isPaused: boolean) => {
     resetInput: () => {
       keysRef.current = {};
       keyStackRef.current = [];
-    }
+    },
   };
 };
