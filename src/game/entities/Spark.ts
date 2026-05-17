@@ -7,6 +7,7 @@ export class Spark {
   private speed = 2.5;
   public isActive = false;
   private readonly COLLISION_RADIUS = 10;
+  private readonly COLLISION_RADIUS_SQ = 100; // 10 * 10
   private readonly GRACE_PERIOD_INDEX = 10;
 
   activate(startPoint: Point) {
@@ -38,10 +39,8 @@ export class Spark {
     // Check collision with player
     // Only check collision if the spark has moved away from the start of the trail
     // to prevent instant "game over" on spawn.
-    const playerDist = Math.sqrt(
-      Math.pow(this.x - playerPos.x, 2) + Math.pow(this.y - playerPos.y, 2),
-    );
-    return this.trailIndex > this.GRACE_PERIOD_INDEX && playerDist < this.COLLISION_RADIUS;
+    const distSq = Math.pow(this.x - playerPos.x, 2) + Math.pow(this.y - playerPos.y, 2);
+    return this.trailIndex > this.GRACE_PERIOD_INDEX && distSq < this.COLLISION_RADIUS_SQ;
   }
 
   draw(ctx: CanvasRenderingContext2D) {

@@ -14,8 +14,6 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     timeout-minutes: 10
     environment: github-pages
     steps:
@@ -31,7 +29,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'pnpm'
+
+      - name: Get pnpm store directory 📂
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm config get store-dir)" >> $GITHUB_ENV
+
+      - name: Cache pnpm modules 💾
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies 🔧
         run: pnpm install --frozen-lockfile --prefer-offline
