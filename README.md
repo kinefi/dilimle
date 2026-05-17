@@ -1,6 +1,6 @@
 # Dilimle
 
-**Dilimle** (Turkish for "Slice it") is a modern Volfied/Qix-inspired arcade game built with React, TypeScript, Vite, and the HTML5 Canvas API. 
+**Dilimle** (Turkish for "Slice it") is a modern Volfied/Qix-inspired arcade game built with React, TypeScript, Vite, and the [HTML5 Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API). 
 
 The objective is to capture the "void" by slicing off sections while avoiding enemies that inhabit the danger zones.
 
@@ -16,7 +16,7 @@ The objective is to capture the "void" by slicing off sections while avoiding en
 - **Build Tool:** Vite 8
 - **Styling:** Tailwind CSS 4
 - **Rendering:** HTML5 Canvas
-- **Geometry Processing:** `polygon-clipping`
+- **Geometry Processing:** [polygon-clipping](https://github.com/mfogel/polygon-clipping)
 
 ## Controls
 - **Arrow Keys:** Move the player and slice through the void.
@@ -48,4 +48,4 @@ The objective is to capture the "void" by slicing off sections while avoiding en
 - **Type Safety:** TypeScript is strictly enforced during the build process. Running `pnpm build` will trigger a type-check pass that must succeed before the project is bundled.
 
 ## License
-Licensed under the Apache License, Version 2.0.
+Licensed under the [Apache License, Version 2.0](./LICENSE).
