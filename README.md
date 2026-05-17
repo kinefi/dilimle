@@ -4,11 +4,24 @@
 
 The objective is to capture the "void" by slicing off sections while avoiding enemies that inhabit the danger zones.
 
+## Key Features
+- **Modular Architecture:** Adheres to SOLID principles and Clean Architecture by separating concerns into dedicated hooks (Input, PowerUps, Progression) and utility modules (Geometry, Collision).
+- **Advanced Capture Logic:** Uses `polygon-clipping` for robust geometric calculations, ensuring the playable area is correctly preserved while slicing.
+- **Dynamic Difficulty:** Level-based scaling that introduces new enemy types (Chasers, Fire Trailers) and increases speeds as you progress.
+- **Power-up System:** Includes Shields, Fire Resistance, and Slow Motion to aid in capturing dense areas.
+- **High Performance:** Optimized HTML5 Canvas rendering pipeline with a decoupled physics update loop.
+
 ## Tech Stack
 - **Frontend:** React 19 + TypeScript 6
 - **Build Tool:** Vite 8
 - **Styling:** Tailwind CSS 4
 - **Rendering:** HTML5 Canvas
+- **Geometry Processing:** `polygon-clipping`
+
+## Controls
+- **Arrow Keys:** Move the player and slice through the void.
+- **Space (Reserved):** Power-up interaction (if applicable).
+- **Volume Slider:** Adjust background music levels in real-time.
 
 ## Getting Started
 

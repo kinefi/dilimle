@@ -1,5 +1,5 @@
 import { GAME_CONFIG } from '../../constants/config';
-import { Point } from '../../utils/gameHelpers';
+import { Point } from '../../utils/geometryUtils';
 import { Enemy } from '../entities/Enemy';
 import { Spark } from '../entities/Spark';
 import { Shield } from '../entities/Shield';
@@ -27,6 +27,7 @@ export class Renderer {
     ctx.fillStyle = GAME_CONFIG.COLORS.BACKGROUND;
     ctx.fillRect(0, 0, GAME_CONFIG.GRID_WIDTH, GAME_CONFIG.GRID_HEIGHT);
 
+    ctx.save();
     // Draw Safe Zones with distinct borders
     ctx.fillStyle = GAME_CONFIG.COLORS.SAFE_ZONE;
     capturedPolygons.forEach(poly => {
@@ -38,12 +39,16 @@ export class Renderer {
       ctx.lineWidth = 2;
       ctx.stroke();
     });
+    ctx.restore();
 
     if (isSlicing) {
+      ctx.save();
       ctx.strokeStyle = GAME_CONFIG.COLORS.TRAIL;
+      ctx.lineWidth = 2;
       ctx.beginPath();
       trail.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
       ctx.stroke();
+      ctx.restore();
     }
 
     // Draw Player with optional shield effect
@@ -55,11 +60,13 @@ export class Renderer {
     } 
     
     if (fireShieldTime > 0) {
+      ctx.save();
       ctx.strokeStyle = '#ff5722';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.arc(player.x, player.y, 10, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.restore();
     }
 
     if (shieldTime <= 0 && fireShieldTime <= 0) {

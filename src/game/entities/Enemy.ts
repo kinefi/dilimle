@@ -1,5 +1,5 @@
 import { GAME_CONFIG } from '../../constants/config';
-import { Point, isPointInPolygon } from '../../utils/gameHelpers';
+import { Point, isPointInPolygon } from '../../utils/geometryUtils';
 
 export enum EnemyType {
   BOUNCER,
@@ -25,7 +25,7 @@ export class Enemy {
     this.x = x;
     this.y = y;
     this.type = type;
-    const speed = (type === EnemyType.CHASER ? 2 : 5) * speedScale;
+    const speed = (type === EnemyType.CHASER ? 4 : 5) * speedScale;
     this.vx = (Math.random() - 0.5) * speed;
     this.vy = (Math.random() - 0.5) * speed;
   }
@@ -34,7 +34,19 @@ export class Enemy {
    * Helper to check if the enemy's center is inside a given polygon
    */
   isInsidePolygon(polygon: Point[]): boolean {
-    return isPointInPolygon({ x: this.x, y: this.y }, polygon);
+    // Expanded sampling points for airtight detection
+    const checkPoints = [
+      { x: this.x, y: this.y },
+      { x: this.x - this.radius, y: this.y },
+      { x: this.x + this.radius, y: this.y },
+      { x: this.x, y: this.y - this.radius },
+      { x: this.x, y: this.y + this.radius },
+      { x: this.x - this.radius * 0.5, y: this.y - this.radius * 0.5 },
+      { x: this.x + this.radius * 0.5, y: this.y + this.radius * 0.5 },
+      { x: this.x - this.radius * 0.5, y: this.y + this.radius * 0.5 },
+      { x: this.x + this.radius * 0.5, y: this.y - this.radius * 0.5 }
+    ];
+    return checkPoints.some(p => isPointInPolygon(p, polygon));
   }
 
   update(isSafeCheck: (p: Point) => boolean, playerPos?: Point, slowFactor: number = 1) {

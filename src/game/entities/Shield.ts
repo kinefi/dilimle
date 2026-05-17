@@ -1,5 +1,5 @@
 import { GAME_CONFIG } from '../../constants/config';
-import { Point } from '../../utils/gameHelpers';
+import { Point } from '../../utils/geometryUtils';
 
 export enum ShieldType {
   NORMAL,

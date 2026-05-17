@@ -15,7 +15,6 @@ export interface GameConfig {
   INITIAL_LIVES: number;
   SHIELD_DURATION: number;
   SOUNDS: {
-    SLICE: string;
     CAPTURE: string;
     BGM: string;
   };
@@ -38,7 +37,6 @@ export const GAME_CONFIG: GameConfig = {
   INITIAL_LIVES: 3,
   SHIELD_DURATION: 300, // Frames (approx 5 seconds at 60fps)
   SOUNDS: {
-    SLICE: '/sounds/slice.mp3',
     CAPTURE: '/sounds/capture.mp3',
     BGM: '/sounds/bgm.mp3',
   },

@@ -2,14 +2,30 @@ import React, { useRef, use, useState } from 'react';
 import { GAME_CONFIG } from '../constants/config';
 import HUD from './HUD';
 import GameOver from './GameOver';
+import BossHealthBar from './BossHealthBar';
+import WinScreen from './WinScreen';
+import StartScreen from './StartScreen';
 import { useGameEngine } from '../hooks/useGameEngine';
-import { assetsPromise, audioCtx } from '../utils/gameHelpers';
+import { assetsPromise, audioCtx } from '../utils/audioUtils';
 
 const GameCanvas: React.FC = () => {
   const audioAssets = use(assetsPromise);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isStarted, setIsStarted] = useState(false);
-  const { level, score, lives, capturedPercent, bossHealth, isGameOver, isWin, shieldTime, slowMotionTime, resetGame } = useGameEngine(canvasRef, audioAssets, isStarted);
+  const { 
+    level, 
+    score, 
+    lives, 
+    capturedPercent, 
+    bossHealth, 
+    isGameOver, 
+    isWin, 
+    shieldTime, 
+    slowMotionTime, 
+    resetGame,
+    bgmVolume,
+    setBgmVolume
+  } = useGameEngine(canvasRef, audioAssets, isStarted);
 
   const handleStart = () => {
     if (audioCtx.state === 'suspended') {
@@ -19,45 +35,41 @@ const GameCanvas: React.FC = () => {
   };
 
   return (
-    <div className="relative outline-none" onKeyDown={(e) => isStarted && e.preventDefault()} tabIndex={0}>
+    <div 
+      className="relative outline-none" 
+      onMouseDown={(e) => e.currentTarget.focus()}
+      tabIndex={0}
+    >
       <HUD level={level} score={score} capturedPercent={capturedPercent} lives={lives} shieldTime={shieldTime} slowMotionTime={slowMotionTime} />
+
+      <div className="absolute bottom-4 left-4 z-50 px-4 py-2 bg-slate-800/60 backdrop-blur-md rounded-lg border border-slate-700/50 text-white font-black tracking-widest pointer-events-none shadow-lg">
+        <span className="text-xs text-slate-400 block uppercase font-bold">Current</span>
+        LEVEL {level}
+      </div>
+
+      <div className="absolute bottom-4 right-4 z-50 flex items-center gap-3 p-3 bg-slate-800/60 backdrop-blur-md rounded-full shadow-lg border border-slate-700/50 group transition-all hover:pr-5">
+        <span className="text-xl leading-none text-white transition-transform group-hover:scale-110">
+          {bgmVolume === 0 ? '🔇' : bgmVolume < 0.5 ? '🔉' : '🔊'}
+        </span>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={bgmVolume}
+          onChange={(e) => setBgmVolume(parseFloat(e.target.value))}
+          className="w-0 overflow-hidden transition-all duration-300 group-hover:w-24 accent-emerald-500 cursor-pointer h-1.5 rounded-lg appearance-none bg-slate-600"
+          title="Background Music Volume"
+        />
+      </div>
       
-      {isStarted && !isGameOver && !isWin && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-64 h-4 bg-slate-800 rounded-full border border-slate-600 overflow-hidden z-30">
-          <div 
-            className="h-full bg-red-500 transition-all duration-300" 
-            style={{ width: `${bossHealth}%` }}
-          />
-          <span className="absolute inset-0 flex items-center justify-center text-[10px] text-white font-bold uppercase">Boss Integrity</span>
-        </div>
-      )}
+      {isStarted && !isGameOver && !isWin && <BossHealthBar health={bossHealth} />}
 
       {isGameOver && <GameOver onRestart={resetGame} />}
       
-      {isWin && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-900/80 z-50 rounded-lg">
-          <h2 className="text-6xl font-black text-white mb-4 tracking-tighter italic">LEVEL CLEAR!</h2>
-          <p className="text-emerald-200 mb-6 text-xl">You captured {capturedPercent}% of the void!</p>
-          <button 
-            onClick={resetGame}
-            className="px-8 py-3 bg-white text-emerald-900 font-bold text-xl hover:bg-emerald-100 transition-colors rounded shadow-lg"
-          >
-            NEXT LEVEL
-          </button>
-        </div>
-      )}
+      {isWin && <WinScreen capturedPercent={capturedPercent} onNextLevel={resetGame} />}
 
-      {!isStarted && !isGameOver && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-40 rounded-lg backdrop-blur-sm">
-          <button 
-            onClick={handleStart}
-            className="px-12 py-4 bg-emerald-500 text-white font-black text-2xl hover:bg-emerald-400 transition-all transform hover:scale-105 rounded shadow-xl tracking-widest"
-          >
-            START GAME
-          </button>
-          <p className="text-slate-300 mt-4 font-mono text-sm uppercase">Use Arrow Keys to Slice</p>
-        </div>
-      )}
+      {!isStarted && !isGameOver && <StartScreen onStart={handleStart} />}
 
       <canvas 
         ref={canvasRef} 
